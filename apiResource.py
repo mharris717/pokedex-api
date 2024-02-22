@@ -1,7 +1,7 @@
-from pydantic import BaseModel
-import requests
 from typing import Generic, TypeVar
 
+import requests
+from pydantic import BaseModel
 
 T = TypeVar("T")
 
@@ -11,8 +11,9 @@ class NamedAPIResource(BaseModel, Generic[T]):
     url: str
 
 
+# I am losing type info
 def namedApiResource(cls: T) -> NamedAPIResource[T]:
-    class Inner(NamedAPIResource[T]):
+    class Inner(NamedAPIResource[T], Generic[T]):
         def resolve(self) -> T:
             response = requests.get(self.url)
             if response.status_code == 200:

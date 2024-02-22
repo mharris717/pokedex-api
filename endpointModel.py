@@ -1,6 +1,7 @@
 from typing import ClassVar
-from pydantic import BaseModel
+
 import requests
+from pydantic import BaseModel
 
 
 class EndpointModel(BaseModel):

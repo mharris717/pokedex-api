@@ -1,8 +1,9 @@
 from pydantic import BaseModel
+
 from apiResource import namedApiResource
 from endpointModel import EndpointModel
 from main import Ability, Move
-from shared import Name, Type
+from shared import Name, Type, VersionGroup
 
 
 class Region(BaseModel):
@@ -15,11 +16,6 @@ class Region(BaseModel):
 
 
 class PokemonSpecies(BaseModel):
-    id: int
-    name: str
-
-
-class VersionGroup(BaseModel):
     id: int
     name: str
 

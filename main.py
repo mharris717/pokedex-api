@@ -1,10 +1,8 @@
-from apiResource import NamedAPIResource, namedApiResource, namedApiResourceLazy
 from pydantic import BaseModel
 
-
+from apiResource import NamedAPIResource, namedApiResource, namedApiResourceLazy
 from endpointModel import EndpointModel
-
-from shared import Name
+from shared import Description, Item, Name, Version, VersionGameIndex, VersionGroup
 
 
 class Ability(BaseModel):
@@ -15,24 +13,31 @@ class Ability(BaseModel):
     names: list[Name]
 
 
-class VersionGameIndex(BaseModel):
-    pass
+class PokemonHeldItemVersion(BaseModel):
+    version: namedApiResource(Version)
+    rarity: int
 
 
 class PokemonHeldItem(BaseModel):
-    pass
+    item: namedApiResourceLazy(Item)
+    version_details: list[PokemonHeldItemVersion]
 
 
-class Move(BaseModel):
-    pass
+class Move(EndpointModel):
+    url = "move"
+
+    id: int
+    name: str
 
 
-class MoveLearnMethod(BaseModel):
-    pass
+class MoveLearnMethod(EndpointModel):
+    url = "move-learn-method"
 
-
-class VersionGroup(BaseModel):
-    pass
+    id: int
+    name: str
+    descriptions: list[Description]
+    names: list[Name]
+    version_groups: list[namedApiResource(VersionGroup)]
 
 
 class PokemonMoveVersion(BaseModel):
@@ -47,6 +52,8 @@ class PokemonMove(BaseModel):
 
 
 class PokemonAbility(BaseModel):
+    """Child Wrapper on Ability"""
+
     is_hidden: bool
     slot: int
     ability: namedApiResource(Ability)
