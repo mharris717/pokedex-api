@@ -1,42 +1,10 @@
+from apiResource import NamedAPIResource, namedApiResource, namedApiResourceLazy
 from pydantic import BaseModel
-from typing import Optional
-from typing import Generic, List, Optional, TypeVar
-
-import requests
-
-T = TypeVar("T")
 
 
-class NamedAPIResource(BaseModel, Generic[T]):
-    name: str
-    url: str
+from endpointModel import EndpointModel
 
-
-def namedApiResource(cls: T) -> NamedAPIResource[T]:
-    class Inner(NamedAPIResource[T]):
-        def resolve(self) -> T:
-            response = requests.get(self.url)
-            if response.status_code == 200:
-                data = response.json()
-                return cls(**data)
-            else:
-                return None
-
-    return Inner
-
-
-class Language(BaseModel):
-    id: int
-    name: str
-    official: bool
-    iso639: str
-    iso3166: str
-    # names: List[Name]
-
-
-class Name(BaseModel):
-    name: str
-    language: namedApiResource(Language)
+from shared import Name
 
 
 class Ability(BaseModel):
@@ -44,7 +12,7 @@ class Ability(BaseModel):
     name: str
     is_main_series: bool
     # generation: namedApiResource(Generation)
-    names: List[Name]
+    names: list[Name]
 
 
 class VersionGameIndex(BaseModel):
@@ -75,7 +43,7 @@ class PokemonMoveVersion(BaseModel):
 
 class PokemonMove(BaseModel):
     move: namedApiResource(Move)
-    version_group_details: List[PokemonMoveVersion]
+    version_group_details: list[PokemonMoveVersion]
 
 
 class PokemonAbility(BaseModel):
@@ -99,10 +67,12 @@ class PokemonForm(BaseModel):
     name: str
     order: int
     form_name: str
-    # pokemon: namedApiResource(Pokemon)
+    pokemon: namedApiResourceLazy(lambda: Pokemon)
 
 
-class Pokemon(BaseModel):
+class Pokemon(EndpointModel):
+    url = "pokemon"
+
     id: int
     name: str
     base_experience: int
@@ -110,24 +80,11 @@ class Pokemon(BaseModel):
     is_default: bool
     order: int
     weight: int
-    abilities: List[PokemonAbility]
+    abilities: list[PokemonAbility]
     # forms: List[PokemonFormType]
-    forms: List[namedApiResource(PokemonForm)]
-    game_indices: List[VersionGameIndex]
-    held_items: List[PokemonHeldItem]
+    forms: list[namedApiResource(PokemonForm)]
+    game_indices: list[VersionGameIndex]
+    held_items: list[PokemonHeldItem]
     location_area_encounters: str
-    moves: List[PokemonMove]
-    types: List[PokemonType]
-
-    @classmethod
-    def fetch_pokemon(cls, id: int):
-        response = requests.get(f"https://pokeapi.co/api/v2/pokemon/{id}")
-        if response.status_code == 200:
-            data = response.json()
-            return cls(**data)
-        else:
-            return None
-
-
-res = Pokemon.fetch_pokemon(1)
-print("bottom")
+    moves: list[PokemonMove]
+    types: list[PokemonType]
