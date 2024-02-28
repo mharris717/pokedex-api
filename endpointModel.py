@@ -1,9 +1,10 @@
 from typing import Any, ClassVar, Optional
 
-import requests
 from pydantic import BaseModel, ConfigDict, create_model
 
-from apiResource import namedApiResource
+from apiResource import namedApiResource, pokeGet
+
+BASE_URL = "https://pokeapi.co/api/v2"
 
 
 class PokeModel(BaseModel):
@@ -15,21 +16,13 @@ class EndpointModel(PokeModel):
 
     @classmethod
     def fetchOne(cls, id: int):
-        response = requests.get(f"https://pokeapi.co/api/v2/{cls.url}/{id}")
-        if response.status_code == 200:
-            data = response.json()
-            return cls(**data)
-        else:
-            return None
+        data = pokeGet(f"{BASE_URL}/{cls.url}/{id}")
+        return cls(**data)
 
     @classmethod
     def fetchMany(cls, **kwargs):
-        response = requests.get(f"https://pokeapi.co/api/v2/{cls.url}", kwargs)
-        if response.status_code == 200:
-            data = response.json()
-            return makePage(cls, data)
-        else:
-            return None
+        data = pokeGet(f"{BASE_URL}/{cls.url}", kwargs)
+        return makePage(cls, data)
 
 
 def makePage(cls, data):
@@ -40,6 +33,10 @@ def makePage(cls, data):
     )(cls=cls, **data)
 
 
+class NoPageError(Exception):
+    pass
+
+
 class Page(BaseModel):
     cls: Any
     count: int
@@ -47,12 +44,10 @@ class Page(BaseModel):
     previous: Optional[str]
 
     def _fetch(self, url):
-        response = requests.get(url)
-        if response.status_code == 200:
-            data = response.json()
-            return makePage(self.cls, data)
-        else:
-            return None
+        if not url:
+            raise NoPageError
+        data = pokeGet(url)
+        return makePage(self.cls, data)
 
     def fetchNext(self):
         return self._fetch(self.next)
