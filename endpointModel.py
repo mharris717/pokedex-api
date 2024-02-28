@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Optional
 
 import requests
 from pydantic import BaseModel
@@ -28,25 +28,33 @@ class EndpointModel(BaseModel):
         response = requests.get(url)
         if response.status_code == 200:
             data = response.json()
-            return Page(cls, data)
+            return makePage(cls, data)
         else:
             return None
 
 
-@dataclass
-class Page:
-    cls: Any
-    data: Any
+def makePage(cls, data):
+    class Inner(Page, BaseModel):
+        results: list[namedApiResource(cls)]
 
-    @property
-    def results(self):
-        resource = namedApiResource(self.cls)
-        return [resource(**result) for result in self.data["results"]]
+    return Inner(cls=cls, **data)
+
+
+class Page(BaseModel):
+    cls: Any
+    count: int
+    next: Optional[str]
+    previous: Optional[str]
+
+    # @property
+    # def results(self):
+    #     resource = namedApiResource(self.cls)
+    #     return [resource(**result) for result in self.data["results"]]
 
     def fetchNext(self):
-        response = requests.get(self.data["next"])
+        response = requests.get(self.next)
         if response.status_code == 200:
             data = response.json()
-            return Page(self.cls, data)
+            return makePage(self.cls, data)
         else:
             return None
