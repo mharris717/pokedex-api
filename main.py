@@ -5,11 +5,17 @@ from endpointModel import EndpointModel
 from shared import Description, Item, Name, Version, VersionGameIndex, VersionGroup
 
 
+def importGeneration():
+    from generation import Generation
+
+    return Generation
+
+
 class Ability(BaseModel):
     id: int
     name: str
     is_main_series: bool
-    # generation: namedApiResource(Generation)
+    generation: namedApiResourceLazy(importGeneration)
     names: list[Name]
 
 
@@ -88,7 +94,6 @@ class Pokemon(EndpointModel):
     order: int
     weight: int
     abilities: list[PokemonAbility]
-    # forms: List[PokemonFormType]
     forms: list[namedApiResource(PokemonForm)]
     game_indices: list[VersionGameIndex]
     held_items: list[PokemonHeldItem]

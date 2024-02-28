@@ -13,16 +13,17 @@ class NamedAPIResource(BaseModel, Generic[T]):
 
 # I am losing type info
 def namedApiResource(cls: T) -> NamedAPIResource[T]:
-    class Inner(NamedAPIResource[T], Generic[T]):
-        def resolve(self) -> T:
-            response = requests.get(self.url)
-            if response.status_code == 200:
-                data = response.json()
-                return cls(**data)
-            else:
-                return None
+    return namedApiResourceLazy(lambda: cls)
+    # class Inner(NamedAPIResource[T], Generic[T]):
+    #     def resolve(self) -> T:
+    #         response = requests.get(self.url)
+    #         if response.status_code == 200:
+    #             data = response.json()
+    #             return cls(**data)
+    #         else:
+    #             return None
 
-    return Inner
+    # return Inner
 
 
 def namedApiResourceLazy(f):

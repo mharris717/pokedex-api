@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import Any, ClassVar, Optional
 
 import requests
@@ -21,11 +20,7 @@ class EndpointModel(BaseModel):
 
     @classmethod
     def fetchMany(cls, **kwargs):
-        url = f"https://pokeapi.co/api/v2/{cls.url}"
-        if kwargs:
-            url += "?" + "&".join(f"{k}={v}" for k, v in kwargs.items())
-
-        response = requests.get(url)
+        response = requests.get(f"https://pokeapi.co/api/v2/{cls.url}", kwargs)
         if response.status_code == 200:
             data = response.json()
             return makePage(cls, data)
@@ -34,9 +29,6 @@ class EndpointModel(BaseModel):
 
 
 def makePage(cls, data):
-    # class Inner(Page, BaseModel):
-    #     results: list[namedApiResource(cls)]
-
     return create_model(
         cls.__name__,
         __base__=Page,
@@ -50,15 +42,16 @@ class Page(BaseModel):
     next: Optional[str]
     previous: Optional[str]
 
-    # @property
-    # def results(self):
-    #     resource = namedApiResource(self.cls)
-    #     return [resource(**result) for result in self.data["results"]]
-
-    def fetchNext(self):
-        response = requests.get(self.next)
+    def _fetch(self, url):
+        response = requests.get(url)
         if response.status_code == 200:
             data = response.json()
             return makePage(self.cls, data)
         else:
             return None
+
+    def fetchNext(self):
+        return self._fetch(self.next)
+
+    def fetchPrevious(self):
+        return self._fetch(self.previous)
