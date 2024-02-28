@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Any, ClassVar, Optional
 
 import requests
-from pydantic import BaseModel
+from pydantic import BaseModel, create_model
 
 from apiResource import namedApiResource
 
@@ -34,10 +34,14 @@ class EndpointModel(BaseModel):
 
 
 def makePage(cls, data):
-    class Inner(Page, BaseModel):
-        results: list[namedApiResource(cls)]
+    # class Inner(Page, BaseModel):
+    #     results: list[namedApiResource(cls)]
 
-    return Inner(cls=cls, **data)
+    return create_model(
+        cls.__name__,
+        __base__=Page,
+        results=(list[namedApiResource(cls)], ...),
+    )(cls=cls, **data)
 
 
 class Page(BaseModel):
