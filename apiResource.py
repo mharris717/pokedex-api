@@ -11,22 +11,10 @@ class NamedAPIResource(BaseModel, Generic[T]):
     url: str
 
 
-# I am losing type info
-def namedApiResource(cls: T) -> NamedAPIResource[T]:
-    return namedApiResourceLazy(lambda: cls)
-    # class Inner(NamedAPIResource[T], Generic[T]):
-    #     def resolve(self) -> T:
-    #         response = requests.get(self.url)
-    #         if response.status_code == 200:
-    #             data = response.json()
-    #             return cls(**data)
-    #         else:
-    #             return None
+def namedApiResource(f):
+    if isinstance(f, type):
+        return namedApiResource(lambda: f)
 
-    # return Inner
-
-
-def namedApiResourceLazy(f):
     class Inner(NamedAPIResource):
         def resolve(self):
             response = requests.get(self.url)

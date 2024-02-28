@@ -1,6 +1,4 @@
-from pydantic import BaseModel, ConfigDict, Extra
-
-from apiResource import NamedAPIResource, namedApiResource, namedApiResourceLazy
+from apiResource import NamedAPIResource, namedApiResource
 from endpointModel import EndpointModel, PokeModel
 from shared import (
     Description,
@@ -23,7 +21,7 @@ class Ability(PokeModel):
     id: int
     name: str
     is_main_series: bool
-    generation: namedApiResourceLazy(importGeneration)
+    generation: namedApiResource(importGeneration)
     names: list[Name]
 
 
@@ -33,7 +31,7 @@ class PokemonHeldItemVersion(PokeModel):
 
 
 class PokemonHeldItem(PokeModel):
-    item: namedApiResourceLazy(Item)
+    item: namedApiResource(Item)
     version_details: list[PokemonHeldItemVersion]
 
 
@@ -88,7 +86,7 @@ class PokemonForm(PokeModel):
     name: str
     order: int
     form_name: str
-    pokemon: namedApiResourceLazy(lambda: Pokemon)
+    pokemon: namedApiResource(lambda: Pokemon)
 
 
 class PokemonCries(PokeModel):
@@ -109,7 +107,7 @@ class Stat(EndpointModel):
 
 
 class PokemonStat(PokeModel):
-    stat: namedApiResourceLazy(lambda: Stat)
+    stat: namedApiResource(lambda: Stat)
     effort: int
     base_stat: int
 
@@ -120,7 +118,7 @@ class PokemonSprites(PokeModel):
 
 
 class PokemonTypePast(PokeModel):
-    generation: namedApiResourceLazy(importGeneration)
+    generation: namedApiResource(importGeneration)
     types: list[PokemonType]
 
 
