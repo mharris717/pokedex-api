@@ -1,12 +1,16 @@
 from typing import Any, ClassVar, Optional
 
 import requests
-from pydantic import BaseModel, create_model
+from pydantic import BaseModel, ConfigDict, create_model
 
 from apiResource import namedApiResource
 
 
-class EndpointModel(BaseModel):
+class PokeModel(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+
+class EndpointModel(PokeModel):
     url: ClassVar[str]
 
     @classmethod

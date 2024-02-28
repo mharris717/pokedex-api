@@ -1,8 +1,16 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Extra
 
 from apiResource import NamedAPIResource, namedApiResource, namedApiResourceLazy
-from endpointModel import EndpointModel
-from shared import Description, Item, Name, Version, VersionGameIndex, VersionGroup
+from endpointModel import EndpointModel, PokeModel
+from shared import (
+    Description,
+    Item,
+    Name,
+    PokemonSpecies,
+    Version,
+    VersionGameIndex,
+    VersionGroup,
+)
 
 
 def importGeneration():
@@ -11,7 +19,7 @@ def importGeneration():
     return Generation
 
 
-class Ability(BaseModel):
+class Ability(PokeModel):
     id: int
     name: str
     is_main_series: bool
@@ -19,12 +27,12 @@ class Ability(BaseModel):
     names: list[Name]
 
 
-class PokemonHeldItemVersion(BaseModel):
+class PokemonHeldItemVersion(PokeModel):
     version: namedApiResource(Version)
     rarity: int
 
 
-class PokemonHeldItem(BaseModel):
+class PokemonHeldItem(PokeModel):
     item: namedApiResourceLazy(Item)
     version_details: list[PokemonHeldItemVersion]
 
@@ -46,18 +54,18 @@ class MoveLearnMethod(EndpointModel):
     version_groups: list[namedApiResource(VersionGroup)]
 
 
-class PokemonMoveVersion(BaseModel):
+class PokemonMoveVersion(PokeModel):
     move_learn_method: namedApiResource(MoveLearnMethod)
     version_group: namedApiResource(VersionGroup)
     level_learned_at: int
 
 
-class PokemonMove(BaseModel):
+class PokemonMove(PokeModel):
     move: namedApiResource(Move)
     version_group_details: list[PokemonMoveVersion]
 
 
-class PokemonAbility(BaseModel):
+class PokemonAbility(PokeModel):
     """Child Wrapper on Ability"""
 
     is_hidden: bool
@@ -65,22 +73,55 @@ class PokemonAbility(BaseModel):
     ability: namedApiResource(Ability)
 
 
-class PokemonType(BaseModel):
+class PokemonType(PokeModel):
     slot: int
     type: NamedAPIResource
 
 
-class PokemonFormType(BaseModel):
+class PokemonFormType(PokeModel):
     slot: int
     type: NamedAPIResource
 
 
-class PokemonForm(BaseModel):
+class PokemonForm(PokeModel):
     id: int
     name: str
     order: int
     form_name: str
     pokemon: namedApiResourceLazy(lambda: Pokemon)
+
+
+class PokemonCries(PokeModel):
+    latest: str
+    legacy: str
+
+
+class Stat(EndpointModel):
+    url = "stat"
+
+    id: int
+    name: str
+    game_index: int
+    is_battle_only: bool
+    affecting_moves: dict
+    affecting_natures: dict
+    # more
+
+
+class PokemonStat(PokeModel):
+    stat: namedApiResourceLazy(lambda: Stat)
+    effort: int
+    base_stat: int
+
+
+class PokemonSprites(PokeModel):
+    front_default: str
+    # more
+
+
+class PokemonTypePast(PokeModel):
+    generation: namedApiResourceLazy(importGeneration)
+    types: list[PokemonType]
 
 
 class Pokemon(EndpointModel):
@@ -89,7 +130,7 @@ class Pokemon(EndpointModel):
     id: int
     name: str
     base_experience: int
-    height: int
+    # height: int
     is_default: bool
     order: int
     weight: int
@@ -100,3 +141,8 @@ class Pokemon(EndpointModel):
     location_area_encounters: str
     moves: list[PokemonMove]
     types: list[PokemonType]
+    cries: PokemonCries
+    species: namedApiResource(PokemonSpecies)
+    stats: list[PokemonStat]
+    sprites: PokemonSprites
+    past_types: list[PokemonTypePast]

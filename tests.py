@@ -4,6 +4,7 @@ from main import Pokemon
 def assertBulbasaur(poke):
     assert poke.abilities[0].ability.resolve().name == "overgrow"
     assert poke.name == "bulbasaur"
+    assert poke.height == 7
 
 
 def testSmoke():

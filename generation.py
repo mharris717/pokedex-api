@@ -1,23 +1,18 @@
 from pydantic import BaseModel
 
 from apiResource import namedApiResource
-from endpointModel import EndpointModel
+from endpointModel import EndpointModel, PokeModel
 from main import Ability, Move
-from shared import Name, Type, VersionGroup
+from shared import Name, PokemonSpecies, Type, VersionGroup
 
 
-class Region(BaseModel):
+class Region(PokeModel):
     id: int
     name: str
     # names: list[Name]
     # main_generation: namedApiResource(Generation)
     # pokedexes: list[namedApiResource(Pokedex)]
     # version_groups: list[namedApiResource(VersionGroup)]
-
-
-class PokemonSpecies(BaseModel):
-    id: int
-    name: str
 
 
 class Generation(EndpointModel):

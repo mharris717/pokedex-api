@@ -1,10 +1,12 @@
 from pydantic import BaseModel
 
 from apiResource import namedApiResource
-from endpointModel import EndpointModel
+from endpointModel import EndpointModel, PokeModel
 
 
-class Language(BaseModel):
+class Language(EndpointModel):
+    url = "language"
+
     id: int
     name: str
     official: bool
@@ -13,35 +15,35 @@ class Language(BaseModel):
     # names: List[Name]
 
 
-class Name(BaseModel):
+class Name(PokeModel):
     name: str
     language: namedApiResource(Language)
 
 
-class Type(BaseModel):
+class Type(PokeModel):
     pass
 
 
-class VersionGroup(BaseModel):
+class VersionGroup(PokeModel):
     id: int
     name: str
     order: int
     # more fields
 
 
-class Version(BaseModel):
+class Version(PokeModel):
     id: int
     name: str
     names: list[Name]
     version_group: namedApiResource(VersionGroup)
 
 
-class VersionGameIndex(BaseModel):
+class VersionGameIndex(PokeModel):
     game_index: int
     version: namedApiResource(Version)
 
 
-class Description(BaseModel):
+class Description(PokeModel):
     description: str
     language: namedApiResource(Language)
 
@@ -49,5 +51,10 @@ class Description(BaseModel):
 class Item(EndpointModel):
     url = "item"
 
+    id: int
+    name: str
+
+
+class PokemonSpecies(PokeModel):
     id: int
     name: str
