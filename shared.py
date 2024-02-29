@@ -10,7 +10,7 @@ class Language(EndpointModel):
     official: bool
     iso639: str
     iso3166: str
-    # names: List[Name]
+    # more fields
 
 
 class Name(PokeModel):

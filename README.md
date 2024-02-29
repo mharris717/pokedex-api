@@ -2,7 +2,7 @@
 
 This project is an SDK for the Pokedex API. It provides a set of classes and methods to interact with the API and retrieve data about Pokemon, their abilities, moves, types, and more.
 
-## Installation
+## Installation (in magical pretend land where I published this)
 
 To install the Pokedex API SDK, you can use pip:
 
@@ -15,29 +15,62 @@ pip install pokedex-api-sdk
 Here's a simple example of how to use the SDK to retrieve information about a specific Pokemon:
 
 ```python
-from pokedex_api_sdk import Pokemon
+from pokedex_api_sdk import Pokemon, Generation
 
-# Create a new Pokemon instance
-bulbasaur = Pokemon.fetchOne(1) 
-
-# Print the Pokemon's name
+bulbasaur = Pokemon.fetchOne(1)  
 print(bulbasaur.name)
+print(bulbasaur.abilities[0].ability.resolve().name)
+
+generations = Generation.fetchMany()
+print(generations.results[0].name)
+
 ```
 
  
 ## Documentation
 
-The `namedApiResource` function is used to create a new instance of the `NamedAPIResource` class. It takes a function `f` as an argument, which is used to resolve the resource when the `resolve` method is called on the instance.
+### Fetching by ID
 
-If the function `f` is a type, it is wrapped in a lambda function and passed to `namedApiResource` again. This is to ensure that the function `f` is always a function, not a type.
+The `fetchOne` method retrieves a single object. 
 
-The `resolve` method of the `NamedAPIResource` class sends a GET request to the `url` attribute of the instance. If the response status code is 200, it parses the response JSON and creates a new instance of the type returned by the function `f`. If the response status code is not 200, it returns `None`.
+```python
+poke = Pokemon.fetchOne(1)
+print(poke.name)
+```
+
+### Fetching Lists
+
+The `fetchMany` method is used to retrieve a list of resources. It takes two optional parameters: `limit` and `offset`. The `limit` parameter specifies the maximum number of resources to retrieve, and the `offset` parameter specifies the index of the first resource to retrieve.
+
+It returns a Page object. You can access the total count, next and previous pages, and most importantly the results. `results` is a list of NamedApiResources. Call `resolve` on an item in the list to fetch the corresponding full object. 
+
+You can fetch all referenced objects with `resolveAll`, but be careful, as this does a separate request for each one. 
+
+Here's an example of how to use the `fetchMany` method to retrieve a list of Pokemon:
+
+```python
+pokes = Pokemon.fetchMany(limit=20, offset=10)
+print(pokes.count)
+print(pokes.results[0].name)
+resolved_pokemon = pokes.results[0].resolve()
+print(resolved_pokemon.name)
+```
+
+```python
+pokes = Pokemon.fetchMany(limit=5)
+resolved = pokes.resolveAll() 
+print(resolved[0].name)
+```
+
+### NamedApiResource
+
+The `namedApiResource` function is used to create a new instance of the `NamedAPIResource` class. It takes the referenced class (or a lambda returning the class) as the only arg. 
+
+The `resolve` method of the `NamedAPIResource` class sends a GET request to the `url` attribute of the instance. You call `resolve` to fetch the full referenced object. 
 
 Here's an example of how to call the `resolve` method on a `NamedAPIResource` instance:
 
 ```python
-from pokedex_api_sdk import Pokemon
-
 # Create a new Pokemon instance
 bulbasaur = Pokemon.fetchOne(1) 
 
@@ -50,32 +83,6 @@ for ability in bulbasaur.abilities:
 ### EndpointModel
 
 The `EndpointModel` class is a subclass of `PokeModel` and is used to create new instances of specific endpoint models. It has a `url` attribute that specifies the base URL for the endpoint. The `fetchOne` method is used to retrieve a single resource from the endpoint, while the `fetchMany` method is used to retrieve a list of resources.
-
-
-### Fetching Lists
-
-The `fetchMany` method is used to retrieve a list of resources. It takes two optional parameters: `limit` and `offset`. The `limit` parameter specifies the maximum number of resources to retrieve, and the `offset` parameter specifies the index of the first resource to retrieve.
-
-Here's an example of how to use the `fetchMany` method to retrieve a list of Pokemon:
-
-```python
-from pokedex_api_sdk import Pokemon
-
-# Fetch a list of Pokemon
-pokemons = Pokemon.fetchMany(limit=20, offset=10)
-
-# Print the count of Pokemon
-print(pokemons.count)
-
-# Print the name of the first Pokemon
-print(pokemons.results[0].name)
-# Resolve the first Pokemon in the list
-resolved_pokemon = pokemons.results[0].resolve()
-
-# Print the name of the resolved Pokemon
-print(resolved_pokemon.name)
-
-```
 
 ## Design Decisions
 
@@ -101,18 +108,8 @@ The runtime validation is nice, but for this case seems unimportant. This API is
 
 There's no explicit SDK object / client object / place for user to set global config. For this API that makes sense, as there really isn't any config, I don't fdeel like you're losing much. For many other APIs, this would be a big gap. 
 
+### Field definitions
 
+I defined most of the fields on Pokemon/Generation, along with the classes for most of the references/children. I did not do everything, which I assume is just fine for this exercise. 
 
-
-## TODO
-
-Error handling
-EndpointModel URL
-Config 
-Pydantic vs Raw. IF generating this, would definitely make sense. 
-fetch methods
-Lack of a config or root sdk object
-Handling unspecified fields
-Not being able to walk the named resource if not specified. 
-
-
+The way I structured the NamedApiResource code could definitely be better. I started out trying to get the type hints right, but eventually abandoned that for time. I'll bet I could do this as well or better without the helper `namedApiResource` factory method, but that's the approach I ended on with the time available. 

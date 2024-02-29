@@ -2,6 +2,7 @@ import pytest
 
 from apiResource import FetchError
 from endpointModel import NoPageError
+from generation import Generation
 from main import Pokemon
 
 
@@ -14,6 +15,9 @@ def assertBulbasaur(poke: Pokemon):
 def testFetchOne():
     poke = Pokemon.fetchOne(1)
     assertBulbasaur(poke)
+
+    gen = Generation.fetchOne(1)
+    assert gen.name == "generation-i"
 
 
 def testFieldNotExplicitlyDefined():
@@ -43,6 +47,12 @@ def testFetchListOps():
     pokes = Pokemon.fetchMany(limit=5)
     assert len(pokes.results) == 5
     assert pokes.results[0].name == "bulbasaur"
+
+
+def testFetchListResolveAll():
+    pokes = Pokemon.fetchMany(limit=3).resolveAll()
+    assert len(pokes) == 3
+    assertBulbasaur(pokes[0])
 
 
 def testError():

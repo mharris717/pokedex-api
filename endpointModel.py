@@ -54,3 +54,6 @@ class Page(BaseModel):
 
     def fetchPrevious(self):
         return self._fetch(self.previous)
+
+    def resolveAll(self):
+        return [res.resolve() for res in self.results]
