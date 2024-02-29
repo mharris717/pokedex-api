@@ -1,6 +1,6 @@
 from apiResource import namedApiResource
 from endpointModel import EndpointModel, PokeModel
-from main import Ability, Move
+from pokemon import Ability, Move
 from shared import Name, PokemonSpecies, Type, VersionGroup
 
 

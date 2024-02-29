@@ -3,7 +3,7 @@ import pytest
 from apiResource import FetchError
 from endpointModel import NoPageError
 from generation import Generation
-from main import Pokemon
+from pokemon import Pokemon
 
 
 def assertBulbasaur(poke: Pokemon):
