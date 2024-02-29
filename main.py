@@ -128,6 +128,7 @@ class Pokemon(EndpointModel):
     id: int
     name: str
     base_experience: int
+    # height intentionally missing so we can test it's still accessible
     # height: int
     is_default: bool
     order: int

@@ -11,9 +11,14 @@ def assertBulbasaur(poke: Pokemon):
     assert poke.height == 7
 
 
-def testSmoke():
+def testFetchOne():
     poke = Pokemon.fetchOne(1)
     assertBulbasaur(poke)
+
+
+def testFieldNotExplicitlyDefined():
+    poke = Pokemon.fetchOne(1)
+    assert poke.height == 7
 
 
 def testFetchList():

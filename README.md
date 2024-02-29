@@ -47,6 +47,11 @@ for ability in bulbasaur.abilities:
     print(resolved_ability.name)
 ```
 
+### EndpointModel
+
+The `EndpointModel` class is a subclass of `PokeModel` and is used to create new instances of specific endpoint models. It has a `url` attribute that specifies the base URL for the endpoint. The `fetchOne` method is used to retrieve a single resource from the endpoint, while the `fetchMany` method is used to retrieve a list of resources.
+
+
 ### Fetching Lists
 
 The `fetchMany` method is used to retrieve a list of resources. It takes two optional parameters: `limit` and `offset`. The `limit` parameter specifies the maximum number of resources to retrieve, and the `offset` parameter specifies the index of the first resource to retrieve.
@@ -72,6 +77,29 @@ print(resolved_pokemon.name)
 
 ```
 
+## Design Decisions
+
+### Pydantic
+
+I focused my efforts around Pydantic models. 
+
+Pros:
+* You get runtime validation automatically 
+* Named resource fields get handled/coerced automatically 
+* User gets to work with nice classes instead of raw dicts and lists
+
+Cons: 
+* You can't access an endpoint without defining a model 
+* Fields not explicitly defined can still be accessed, but they have poor DX for lists/dicts. 
+* You can still access the named resource info on fields not explicitly defined, but they are much harder to work with
+
+In hindsight, I think this approach makes the most sense if you're generating the models from a spec. In that case, you can be reasonably confident you're covering everything. If you're producing the SDK in a more manual way, I might take a different approach. You'd sacrifice some DX for the cases you covered, but things you didn't explicitly cover would work identically, instead of being worse or impossible. 
+
+The runtime validation is nice, but for this case seems unimportant. This API is stable and well documented. For cases where the API is evolving rapidly or less reliably documented, the validation would provide more value. 
+
+### No Root/SDK object
+
+There's no explicit SDK object / client object / place for user to set global config. For this API that makes sense, as there really isn't any config, I don't fdeel like you're losing much. For many other APIs, this would be a big gap. 
 
 
 
@@ -82,5 +110,9 @@ Error handling
 EndpointModel URL
 Config 
 Pydantic vs Raw. IF generating this, would definitely make sense. 
+fetch methods
+Lack of a config or root sdk object
+Handling unspecified fields
+Not being able to walk the named resource if not specified. 
 
 
