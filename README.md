@@ -10,7 +10,7 @@ To install the Pokedex API SDK, you can use pip:
 pip install pokedex-api-sdk
 ```
 
-## Usage
+## Basic Usage
 
 Here's a simple example of how to use the SDK to retrieve information about a specific Pokemon:
 
@@ -26,8 +26,11 @@ print(generations.results[0].name)
 
 ```
 
- 
-## Documentation
+## Tests
+
+Run the tests with `pytest tests.py`. Tests are also running on every commit as a GitHub action. 
+
+## Detailed Usage
 
 ### Fetching by ID
 
